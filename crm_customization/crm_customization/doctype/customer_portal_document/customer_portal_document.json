@@ -1,0 +1,152 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "CRM-DOC-EXP-.#####",
+ "creation": "2026-04-15 10:47:26.643867",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "updated_on",
+  "column_break_fidc",
+  "subsidairy_company",
+  "next_update",
+  "column_break_nwns",
+  "document_type",
+  "expire_in_days",
+  "section_break_dork",
+  "updated_by",
+  "remarks",
+  "column_break_cruw",
+  "next_update_by",
+  "view_previous_attachments",
+  "column_break_hzzc",
+  "attachment",
+  "section_break_sqzt",
+  "attachment_history"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "column_break_fidc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "subsidairy_company",
+   "fieldtype": "Link",
+   "label": "Subsidairy Company",
+   "options": "Subsidairy Company"
+  },
+  {
+   "fieldname": "column_break_nwns",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "document_type",
+   "fieldtype": "Link",
+   "label": "Document Type",
+   "options": "Company Document Type"
+  },
+  {
+   "default": "Today",
+   "fieldname": "updated_on",
+   "fieldtype": "Date",
+   "label": "Updated On"
+  },
+  {
+   "fieldname": "next_update",
+   "fieldtype": "Date",
+   "label": "Next Update"
+  },
+  {
+   "fieldname": "expire_in_days",
+   "fieldtype": "Int",
+   "label": "Expire in Days",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_dork",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "updated_by",
+   "fieldtype": "Link",
+   "label": "Updated By",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Small Text",
+   "label": "Remarks"
+  },
+  {
+   "fieldname": "column_break_cruw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "next_update_by",
+   "fieldtype": "Link",
+   "label": "Next Update By",
+   "options": "User"
+  },
+  {
+   "fieldname": "column_break_hzzc",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "view_previous_attachments",
+   "fieldtype": "Button",
+   "hidden": 1,
+   "label": "View Previous Attachments"
+  },
+  {
+   "fieldname": "attachment",
+   "fieldtype": "Attach",
+   "label": "Attachment"
+  },
+  {
+   "fieldname": "section_break_sqzt",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "attachment_history",
+   "fieldtype": "Table",
+   "label": "Previous Uploads",
+   "options": "Attachment History"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-16 14:24:42.601983",
+ "modified_by": "Administrator",
+ "module": "Crm Customization",
+ "name": "Customer Portal Document",
+ "naming_rule": "By \"Naming Series\" field",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

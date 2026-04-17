@@ -1,0 +1,142 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-03-02 12:24:12.113112",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "client",
+  "reg",
+  "registration_status",
+  "service_in_sap",
+  "p_q",
+  "gbs",
+  "column_break_yiyv",
+  "status",
+  "acl_msa",
+  "pq_project",
+  "project_name",
+  "vendor_no",
+  "bd_task",
+  "column_break_jjdl",
+  "stage",
+  "category",
+  "expires_on"
+ ],
+ "fields": [
+  {
+   "fieldname": "client",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Client",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "bd_task",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "BD Task"
+  },
+  {
+   "fieldname": "category",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Category",
+   "options": "BD Request Category"
+  },
+  {
+   "fieldname": "column_break_jjdl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "vendor_no",
+   "fieldtype": "Data",
+   "label": "Vendor No"
+  },
+  {
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Status",
+   "options": "\nNot Started\nNot Qualified\nPending Approval\nWaiting for the Request Approval\nPending Submission\nPending Re-Submission\nIn Process\nOn Hold\nQualified\nCompleted\nRejected\nUnder Qualification\nCancelled"
+  },
+  {
+   "fieldname": "expires_on",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "Expires On"
+  },
+  {
+   "fieldname": "stage",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Stage",
+   "options": "\nRegistration\nPrequalification\nPQ Project\nRFQ Invitation"
+  },
+  {
+   "fieldname": "service_in_sap",
+   "fieldtype": "Data",
+   "label": "Service in SAP"
+  },
+  {
+   "fieldname": "acl_msa",
+   "fieldtype": "Data",
+   "label": "ACL - MSA"
+  },
+  {
+   "fieldname": "gbs",
+   "fieldtype": "Data",
+   "label": "GBS"
+  },
+  {
+   "fieldname": "p_q",
+   "fieldtype": "Select",
+   "label": "PQ",
+   "options": "\nYes\nNo"
+  },
+  {
+   "fieldname": "pq_project",
+   "fieldtype": "Select",
+   "label": "PQ Project",
+   "options": "\nYes\nNo"
+  },
+  {
+   "fieldname": "column_break_yiyv",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "project_name",
+   "fieldtype": "Link",
+   "label": "Project Name",
+   "options": "Project"
+  },
+  {
+   "fieldname": "registration_status",
+   "fieldtype": "Select",
+   "label": "Registration Status",
+   "options": "\nPending\nPending Approval\nRegistered"
+  },
+  {
+   "fieldname": "reg",
+   "fieldtype": "Select",
+   "label": "Registration",
+   "options": "\nIn Process\nPending\nPending Approval\nProjects Only\nYes"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-07 14:44:52.212873",
+ "modified_by": "Administrator",
+ "module": "Crm Customization",
+ "name": "Subsidairy Company Task Register",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

@@ -257,3 +257,15 @@ doc_events = {
         "on_update": "crm_customization.crm_customization.doc_events.project.update_br_status"
     }
 }
+
+fixtures = [
+    {
+        "dt": "Custom Field",
+        "filters": [
+            ["module", "in", [
+                "Crm Customization",
+           
+            ]]
+        ]
+    }
+]

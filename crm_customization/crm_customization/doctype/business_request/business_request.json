@@ -14,6 +14,7 @@
   "contact_person",
   "subsidairy_company",
   "status",
+  "planned_date",
   "column_break_qvzf",
   "customer",
   "request_date",
@@ -100,12 +101,11 @@
   },
   {
    "allow_on_submit": 1,
-   "default": "New",
    "fieldname": "status",
    "fieldtype": "Select",
    "in_standard_filter": 1,
    "label": "Status",
-   "options": "\nNew\nOn-Going\nCancel\nCompleted"
+   "options": "\nNew\nPlanned\nOn-Going\nCancel\nCompleted"
   },
   {
    "fieldname": "customer",
@@ -133,6 +133,11 @@
    "fieldtype": "Table MultiSelect",
    "label": "Users",
    "options": "Select Users"
+  },
+  {
+   "fieldname": "planned_date",
+   "fieldtype": "Date",
+   "label": "Plan Start Date"
   }
  ],
  "grid_page_length": 50,
@@ -144,7 +149,7 @@
    "link_fieldname": "custom_business_request"
   }
  ],
- "modified": "2026-04-10 08:55:14.543481",
+ "modified": "2026-04-24 14:02:37.192745",
  "modified_by": "Administrator",
  "module": "Crm Customization",
  "name": "Business Request",
@@ -169,5 +174,6 @@
  "rows_threshold_for_grid_search": 20,
  "sort_field": "modified",
  "sort_order": "DESC",
- "states": []
+ "states": [],
+ "track_changes": 1
 }

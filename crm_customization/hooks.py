@@ -251,3 +251,9 @@ scheduler_events = {
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
 
+doc_events = {
+    "Project": {
+        "after_insert": "crm_customization.crm_customization.doc_events.project.update_br_status",
+        "on_update": "crm_customization.crm_customization.doc_events.project.update_br_status"
+    }
+}

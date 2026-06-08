@@ -1,0 +1,47 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-20 12:31:11.307684",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "impact_type",
+  "column_break_haac",
+  "impact_amount"
+ ],
+ "fields": [
+  {
+   "fieldname": "impact_type",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Impact Type",
+   "options": "\nRevenue Loss\nDelay in Registration\nBlocked Tender Participation\nClient Relationship Risk"
+  },
+  {
+   "fieldname": "column_break_haac",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "impact_amount",
+   "fieldtype": "Currency",
+   "in_list_view": 1,
+   "label": "Impact Amount"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-20 15:22:44.627479",
+ "modified_by": "Administrator",
+ "module": "Crm Customization",
+ "name": "Issue impact type",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

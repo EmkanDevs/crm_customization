@@ -1,0 +1,60 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-22 14:01:54.774110",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "subsidairy_company",
+  "from",
+  "column_break_olcy",
+  "rfq_requests",
+  "to"
+ ],
+ "fields": [
+  {
+   "fieldname": "subsidairy_company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": " Subsidairy Company",
+   "options": "Subsidairy Company"
+  },
+  {
+   "fieldname": "from",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "From"
+  },
+  {
+   "fieldname": "column_break_olcy",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "rfq_requests",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "RFQ Requests"
+  },
+  {
+   "fieldname": "to",
+   "fieldtype": "Date",
+   "in_list_view": 1,
+   "label": "To"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-04-22 14:07:56.248338",
+ "modified_by": "Administrator",
+ "module": "Crm Customization",
+ "name": "Subsidairy RFQ Statistics",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

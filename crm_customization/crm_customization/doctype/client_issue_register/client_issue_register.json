@@ -1,0 +1,230 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-04-20 11:32:35.184388",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "customer",
+  "issue_title",
+  "department",
+  "column_break_qxsl",
+  "subsidairy_company",
+  "detailed_description",
+  "date_identified",
+  "column_break_qtta",
+  "issue_type",
+  "root_cause",
+  "raised_by",
+  "section_break_nyay",
+  "impact_level",
+  "estimated_value_impact",
+  "business_blocked",
+  "impact_type",
+  "section_break_hbem",
+  "issue_start_date",
+  "actual_resolution_date",
+  "days_lost",
+  "column_break_lsjb",
+  "expected_resolution_date",
+  "business_resume_date",
+  "section_break_udsu",
+  "issue_actions",
+  "section_break_fcba",
+  "resolution_summary",
+  "preventive_action",
+  "column_break_gbcw",
+  "resolved_by",
+  "opportunity"
+ ],
+ "fields": [
+  {
+   "fieldname": "customer",
+   "fieldtype": "Link",
+   "label": "Customer",
+   "options": "Customer"
+  },
+  {
+   "fieldname": "subsidairy_company",
+   "fieldtype": "Link",
+   "label": "Subsidairy Company",
+   "options": "Subsidairy Company"
+  },
+  {
+   "fieldname": "issue_title",
+   "fieldtype": "Small Text",
+   "label": "Issue Title"
+  },
+  {
+   "fieldname": "column_break_qxsl",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "issue_type",
+   "fieldtype": "Link",
+   "label": "Issue Type",
+   "options": "Client Issue Type"
+  },
+  {
+   "fieldname": "detailed_description",
+   "fieldtype": "Small Text",
+   "label": "Detailed Description"
+  },
+  {
+   "fieldname": "column_break_qtta",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "root_cause",
+   "fieldtype": "Select",
+   "label": "Root Cause",
+   "options": "\nData\nInternal\nClient\nExternal Authority"
+  },
+  {
+   "fieldname": "raised_by",
+   "fieldtype": "Link",
+   "label": "Raised By",
+   "options": "User"
+  },
+  {
+   "fieldname": "department",
+   "fieldtype": "Link",
+   "label": "Department",
+   "options": "Department"
+  },
+  {
+   "default": "Today",
+   "fieldname": "date_identified",
+   "fieldtype": "Date",
+   "label": "Date Identified"
+  },
+  {
+   "fieldname": "impact_level",
+   "fieldtype": "Select",
+   "label": "Impact Level",
+   "options": "\nLow\nMedium\nHigh\nCritical"
+  },
+  {
+   "fieldname": "section_break_nyay",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "impact_type",
+   "fieldtype": "Table",
+   "label": "Impact Type",
+   "options": "Issue impact type"
+  },
+  {
+   "fieldname": "estimated_value_impact",
+   "fieldtype": "Currency",
+   "label": "Estimated Value Impact"
+  },
+  {
+   "default": "0",
+   "fieldname": "business_blocked",
+   "fieldtype": "Check",
+   "label": "Business Blocked"
+  },
+  {
+   "fieldname": "section_break_hbem",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "issue_start_date",
+   "fieldtype": "Date",
+   "label": "Issue Start Date"
+  },
+  {
+   "fieldname": "actual_resolution_date",
+   "fieldtype": "Date",
+   "label": "Actual Resolution Date"
+  },
+  {
+   "fieldname": "column_break_lsjb",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expected_resolution_date",
+   "fieldtype": "Date",
+   "label": "Expected Resolution Date"
+  },
+  {
+   "fieldname": "business_resume_date",
+   "fieldtype": "Date",
+   "label": "Business Resume Date"
+  },
+  {
+   "fieldname": "days_lost",
+   "fieldtype": "Int",
+   "label": "Days Lost",
+   "read_only": 1
+  },
+  {
+   "fieldname": "section_break_udsu",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "issue_actions",
+   "fieldtype": "Table",
+   "label": "Issue Actions",
+   "options": "Issue Actions"
+  },
+  {
+   "fieldname": "section_break_fcba",
+   "fieldtype": "Section Break"
+  },
+  {
+   "fieldname": "resolution_summary",
+   "fieldtype": "Data",
+   "label": "Resolution Summary"
+  },
+  {
+   "fieldname": "preventive_action",
+   "fieldtype": "Data",
+   "label": "Preventive Action"
+  },
+  {
+   "fieldname": "column_break_gbcw",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "resolved_by",
+   "fieldtype": "Link",
+   "label": "Resolved By",
+   "options": "User"
+  },
+  {
+   "fieldname": "opportunity",
+   "fieldtype": "Link",
+   "label": "Opportunity",
+   "options": "Opportunity"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2026-04-20 12:55:44.206113",
+ "modified_by": "Administrator",
+ "module": "Crm Customization",
+ "name": "Client Issue Register",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

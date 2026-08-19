@@ -172,9 +172,15 @@ frappe.query_reports["Registration and Qualification"] = {
         },
         {
             fieldname: "vendor",
-            label: __("Vendor"),
+            label: __("Client"),
             fieldtype: "Link",
             options: "Customer"
+        },
+        {
+            fieldname: "vendor_no",
+            label: __("Vendor No"),
+            fieldtype: "Data",
+            width: "150px"
         },
         {
             fieldname: "status",
@@ -188,16 +194,16 @@ frappe.query_reports["Registration and Qualification"] = {
             fieldtype: "Select",
             options: "\nRegistration\nPrequalification\nPQ Project\nRFQ Invitation"
         },
-        {
-            fieldname: "registration",
-            label: __("Registration"),
-            fieldtype: "Check"
-        },
-        {
-            fieldname: "pre_qualification",
-            label: __("Pre-qualification"),
-            fieldtype: "Check"
-        },
+        // {
+        //     fieldname: "registration",
+        //     label: __("Registration"),
+        //     fieldtype: "Check"
+        // },
+        // {
+        //     fieldname: "pre_qualification",
+        //     label: __("Pre-qualification"),
+        //     fieldtype: "Check"
+        // },
     ],
 
     onload: function(report) {

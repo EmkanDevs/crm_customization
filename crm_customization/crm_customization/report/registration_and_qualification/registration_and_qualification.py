@@ -357,19 +357,21 @@ def get_columns(periods):
         {"label": frappe._("Business Request"), "fieldname": "business_request", "fieldtype": "Link", "options": "Business Request", "width": 150},
         {"label": frappe._("Request Date"), "fieldname": "request_date", "fieldtype": "Date", "width": 120},
         {"label": frappe._("Client"), "fieldname": "client", "fieldtype": "Link", "options": "Customer", "width": 180},
+
+        # Vendor No moved after Client
+        {"label": frappe._("Vendor No"), "fieldname": "vendor_no", "fieldtype": "Data", "width": 140},
+
         {"label": frappe._("BD Task"), "fieldname": "bd_task", "fieldtype": "Data", "width": 220},
         {"label": frappe._("Registration"), "fieldname": "reg", "fieldtype": "Check", "width": 100},
         {"label": frappe._("Registration Status"), "fieldname": "registration_status", "fieldtype": "Data", "width": 180},
         {"label": frappe._("PQ"), "fieldname": "pq", "fieldtype": "Check", "width": 80},
         {"label": frappe._("PQ Project"), "fieldname": "pq_project", "fieldtype": "Check", "width": 120},
-        {"label": frappe._("Vendor No"), "fieldname": "vendor_no", "fieldtype": "Data", "width": 140},
         {"label": frappe._("GBS / 9COM / 9CAT"), "fieldname": "cat_group_1", "fieldtype": "Check", "width": 160},
         {"label": frappe._("CPA / Others"), "fieldname": "cat_group_2", "fieldtype": "Check", "width": 140},
         {"label": frappe._("Status"), "fieldname": "status", "fieldtype": "Data", "width": 150},
         {"label": frappe._("Stage"), "fieldname": "stage", "fieldtype": "Data", "width": 140},
     ]
 
-    # 🔥 Dynamic columns
     if periods:
         for key, label, _ in periods:
             columns.append({
@@ -389,8 +391,44 @@ def get_data(filters, periods, period_type, year):
 
     query_filters = {}
 
+    # Subsidiary Company
     if filters.get("subsidiary_company"):
         query_filters["parent"] = filters.get("subsidiary_company")
+
+    # Vendor
+    if filters.get("vendor"):
+        query_filters["vendor_no"] = ["like", f"%{filters.get('vendor')}%"]
+
+    # Vendor No
+    if filters.get("vendor_no"):
+        query_filters["vendor_no"] = ["like", f"%{filters.get('vendor_no')}%"]
+
+    # Registration Status
+    if filters.get("registration_status"):
+        query_filters["registration_status"] = filters.get("registration_status")
+
+    # Stage
+    if filters.get("stage"):
+        query_filters["stage"] = filters.get("stage")
+
+    # Registration
+    if filters.get("registration"):
+        if filters.get("registration") == "Yes":
+            query_filters["reg"] = ["not in", ["", "No", "Pending"]]
+        elif filters.get("registration") == "No":
+            query_filters["reg"] = ["in", ["", "No", "Pending"]]
+
+    # PQ
+    if filters.get("pre_qualification"):
+        query_filters["p_q"] = filters.get("pre_qualification")
+
+    # PQ Project
+    if filters.get("pq_project"):
+        query_filters["pq_project"] = filters.get("pq_project")
+
+    # Status
+    if filters.get("status"):
+        query_filters["status"] = filters.get("status")
 
     records = frappe.db.get_all(
         "Subsidairy Company Task Register",

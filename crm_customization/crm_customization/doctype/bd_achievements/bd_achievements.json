@@ -61,35 +61,30 @@
    "fieldname": "date",
    "fieldtype": "Date",
    "in_list_view": 1,
-   "label": "Date",
-   "reqd": 1
+   "label": "Date"
   },
   {
    "fieldname": "month",
    "fieldtype": "Select",
    "label": "Month",
-   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
-   "reqd": 1
+   "options": "\nJanuary\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember"
   },
   {
    "fieldname": "month_no",
    "fieldtype": "Select",
    "label": "Month No",
-   "options": "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12",
-   "reqd": 1
+   "options": "\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12"
   },
   {
    "fieldname": "vendor_no",
    "fieldtype": "Data",
-   "label": "Vendor No",
-   "reqd": 1
+   "label": "Vendor No"
   },
   {
    "fieldname": "sector",
    "fieldtype": "Table MultiSelect",
    "label": "Sector",
-   "options": "Multiselect Sector",
-   "reqd": 1
+   "options": "Multiselect Sector"
   },
   {
    "fieldname": "section_break_nqvg",
@@ -98,8 +93,7 @@
   {
    "fieldname": "achievement",
    "fieldtype": "Text",
-   "label": "Achievement",
-   "reqd": 1
+   "label": "Achievement"
   },
   {
    "default": "BDA-.####",
@@ -111,8 +105,7 @@
   {
    "fieldname": "quarter",
    "fieldtype": "Data",
-   "label": "Quarter",
-   "reqd": 1
+   "label": "Quarter"
   },
   {
    "fieldname": "sections",
@@ -124,7 +117,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2026-09-17 12:24:29.701519",
+ "modified": "2026-10-16 12:03:57.237450",
  "modified_by": "Administrator",
  "module": "Crm Customization",
  "name": "BD Achievements",

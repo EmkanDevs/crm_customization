@@ -1,0 +1,19 @@
+{
+ "content": null,
+ "creation": "2026-10-14 12:10:05.602530",
+ "docstatus": 0,
+ "doctype": "Page",
+ "idx": 0,
+ "modified": "2026-10-15 12:30:04.927248",
+ "modified_by": "Administrator",
+ "module": "Crm Customization",
+ "name": "assigned-task-center",
+ "owner": "Administrator",
+ "page_name": "assigned-task-center",
+ "roles": [],
+ "script": null,
+ "standard": "Yes",
+ "style": null,
+ "system_page": 0,
+ "title": "Assigned Task Center"
+}

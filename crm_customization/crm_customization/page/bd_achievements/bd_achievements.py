@@ -1,73 +1,89 @@
 import base64
 import json
-from datetime import datetime
+from collections import defaultdict
 
 import frappe
 from frappe.utils import today, getdate
 
-def _build_conditions(filters):
-    """Build a parameterized WHERE clause and value map from dashboard filters."""
-    conditions = ["1=1"]
-    values = {}
-
+def _build_filters(filters):
+    """Build ORM filters for the achievement list."""
+    achievement_filters = []
     for field in ("year", "month", "company", "client", "sections"):
         value = filters.get(field)
         if value:
-            conditions.append(f"{field} = %({field})s")
-            values[field] = value
+            achievement_filters.append([field, "=", value])
 
     if filters.get("from_date"):
-        conditions.append("date >= %(from_date)s")
-        values["from_date"] = filters["from_date"]
+        achievement_filters.append(["date", ">=", filters["from_date"]])
     if filters.get("to_date"):
-        conditions.append("date <= %(to_date)s")
-        values["to_date"] = filters["to_date"]
+        achievement_filters.append(["date", "<=", filters["to_date"]])
+
     if filters.get("sector"):
-        conditions.append(
-            "EXISTS (SELECT 1 FROM `tabMultiselect Sector` `sector_tab` "
-            "WHERE `sector_tab`.`parent` = `tabBD Achievements`.`name` "
-            "AND `sector_tab`.`sector` = %(sector)s)"
+        parents = frappe.get_list(
+            "Multiselect Sector",
+            filters={"sector": filters["sector"], "parenttype": "BD Achievements"},
+            parent_doctype="BD Achievements",
+            pluck="parent",
+            limit_page_length=0,
         )
-        values["sector"] = filters["sector"]
+        if not parents:
+            return None
+        achievement_filters.append(["name", "in", list(set(parents))])
 
-    return " AND ".join(conditions), values
+    return achievement_filters
 
-def _query_achievements(where_clause, values):
-    """Query BD Achievement records for a WHERE clause and attach sector names."""
-    achievements = frappe.db.sql(f"""
-        SELECT
-            name,
-            company,
-            year,
-            client,
-            date,
-            month,
-            month_no,
-            quarter,
-            sections,
-            vendor_no,
-            achievement,
-            creation
-        FROM `tabBD Achievements`
-        WHERE {where_clause}
-        ORDER BY date DESC
-    """, values, as_dict=True)
+def _query_achievements(achievement_filters):
+    """Query BD Achievement records and attach sector names for table display."""
+    if achievement_filters is None:
+        return []
 
-    # Build a map of achievement name -> sectors for table display
+    achievements = frappe.get_list(
+        "BD Achievements",
+        fields=[
+            "name", "company", "year", "client", "date", "month", "month_no",
+            "quarter", "sections", "vendor_no", "achievement", "creation",
+        ],
+        filters=achievement_filters,
+        order_by="date desc",
+        limit_page_length=0,
+    )
+
     if achievements:
-        ach_names = [a.name for a in achievements]
-        placeholders = ', '.join(['%s'] * len(ach_names))
-        sector_rows = frappe.db.sql(f"""
-            SELECT parent, GROUP_CONCAT(sector SEPARATOR ', ') as sectors
-            FROM `tabMultiselect Sector`
-            WHERE parent IN ({placeholders}) AND sector IS NOT NULL AND sector != ''
-            GROUP BY parent
-        """, tuple(ach_names), as_dict=True)
-        sector_map = {r.parent: r.sectors for r in sector_rows}
+        sector_rows = frappe.get_list(
+            "Multiselect Sector",
+            fields=["parent", "sector"],
+            filters={
+                "parent": ["in", [a.name for a in achievements]],
+                "parenttype": "BD Achievements",
+            },
+            parent_doctype="BD Achievements",
+            order_by="parent asc, idx asc",
+            limit_page_length=0,
+        )
+        sector_map = defaultdict(list)
+        for row in sector_rows:
+            if row.sector:
+                sector_map[row.parent].append(row.sector)
         for ach in achievements:
-            ach.sector = sector_map.get(ach.name, '')
+            ach.sector = ", ".join(sector_map[ach.name])
 
     return achievements
+
+
+def _top_value(field, achievement_filters):
+    """Return the most frequent populated company or client for these filters."""
+    if achievement_filters is None:
+        return "N/A", 0
+
+    rows = frappe.get_list(
+        "BD Achievements",
+        fields=[field, "count(*) as count"],
+        filters=[*achievement_filters, [field, "!=", ""]],
+        group_by=field,
+        order_by="count desc",
+        limit_page_length=1,
+    )
+    return (rows[0][field], rows[0].count) if rows else ("N/A", 0)
 
 def _normalize_filters(filters):
     """Coerce the raw filters payload into the normalized dashboard filter keys."""
@@ -93,54 +109,25 @@ def get_dashboard_data(filters=None):
     Get dashboard data for BD Achievements
     """
     filters = _normalize_filters(filters)
-
-    where_clause, values = _build_conditions(filters)
+    achievement_filters = _build_filters(filters)
 
     # Get all achievements (with sector names attached)
-    achievements = _query_achievements(where_clause, values)
+    achievements = _query_achievements(achievement_filters)
 
     # Calculate summary statistics
     total_achievements = len(achievements)
 
     # Companies supported
-    companies = frappe.db.sql(f"""
-        SELECT DISTINCT company
-        FROM `tabBD Achievements`
-        WHERE {where_clause} AND company IS NOT NULL AND company != ''
-    """, values, as_dict=True)
-    companies_supported = len(companies)
+    companies_supported = len({ach.company for ach in achievements if ach.company})
 
     # Clients covered
-    clients = frappe.db.sql(f"""
-        SELECT DISTINCT client
-        FROM `tabBD Achievements`
-        WHERE {where_clause} AND client IS NOT NULL AND client != ''
-    """, values, as_dict=True)
-    clients_covered = len(clients)
+    clients_covered = len({ach.client for ach in achievements if ach.client})
 
     # Top client (most achievements)
-    top_client_data = frappe.db.sql(f"""
-        SELECT client, COUNT(*) as count
-        FROM `tabBD Achievements`
-        WHERE {where_clause} AND client IS NOT NULL AND client != ''
-        GROUP BY client
-        ORDER BY count DESC
-        LIMIT 1
-    """, values, as_dict=True)
-    top_client = top_client_data[0].client if top_client_data else "N/A"
-    top_client_count = top_client_data[0].count if top_client_data else 0
+    top_client, top_client_count = _top_value("client", achievement_filters)
 
     # Top company
-    top_company_data = frappe.db.sql(f"""
-        SELECT company, COUNT(*) as count
-        FROM `tabBD Achievements`
-        WHERE {where_clause} AND company IS NOT NULL AND company != ''
-        GROUP BY company
-        ORDER BY count DESC
-        LIMIT 1
-    """, values, as_dict=True)
-    top_company = top_company_data[0].company if top_company_data else "N/A"
-    top_company_count = top_company_data[0].count if top_company_data else 0
+    top_company, top_company_count = _top_value("company", achievement_filters)
 
     # Count by achievement type (from the sections field)
     achievement_type_counts = get_achievement_type_counts(achievements)
@@ -212,8 +199,7 @@ def export_records(filters=None):
     from frappe.utils.xlsxutils import make_xlsx
 
     filters = _normalize_filters(filters)
-    where_clause, values = _build_conditions(filters)
-    achievements = _query_achievements(where_clause, values)
+    achievements = _query_achievements(_build_filters(filters))
 
     rows = [["Date", "Year", "Company", "Client", "Achievement", "Section", "Vendor No.", "Sector"]]
     for ach in achievements:
@@ -341,18 +327,21 @@ def get_sector_breakdown(achievements):
     """Get breakdown by sector using the filtered achievements list"""
     if not achievements:
         return []
-    ach_names = [a.name for a in achievements]
-    placeholders = ', '.join(['%s'] * len(ach_names))
     try:
-        rows = frappe.db.sql(f"""
-            SELECT sector, COUNT(*) as count
-            FROM `tabMultiselect Sector`
-            WHERE parent IN ({placeholders})
-              AND sector IS NOT NULL AND sector != ''
-            GROUP BY sector
-            ORDER BY count DESC
-        """, tuple(ach_names), as_dict=True)
-        return [{"sector": r.sector, "count": r.count} for r in rows]
+        rows = frappe.get_list(
+            "Multiselect Sector",
+            fields=["sector", "count(*) as count"],
+            filters={
+                "parent": ["in", [a.name for a in achievements]],
+                "parenttype": "BD Achievements",
+                "sector": ["!=", ""],
+            },
+            parent_doctype="BD Achievements",
+            group_by="sector",
+            order_by="count desc",
+            limit_page_length=0,
+        )
+        return [{"sector": row.sector, "count": row.count} for row in rows]
     except Exception:
         return []
 
@@ -373,79 +362,64 @@ def get_filter_options():
     """Get distinct values for dashboard select filters"""
     options = {}
     for field in ("year", "company", "client", "sections"):
-        rows = frappe.db.sql(f"""
-            SELECT DISTINCT `{field}`
-            FROM `tabBD Achievements`
-            WHERE `{field}` IS NOT NULL AND `{field}` != ''
-            ORDER BY `{field}` ASC
-        """)
-        options[field] = [row[0] for row in rows]
+        options[field] = _distinct_values("BD Achievements", field)
 
-    sectors = frappe.db.sql("""
-        SELECT DISTINCT `sector`
-        FROM `tabMultiselect Sector`
-        WHERE `sector` IS NOT NULL AND `sector` != ''
-        ORDER BY `sector` ASC
-    """)
-    options["sector"] = [row[0] for row in sectors]
+    visible_names = frappe.get_list("BD Achievements", pluck="name", limit_page_length=0)
+    options["sector"] = (
+        _distinct_values(
+            "Multiselect Sector",
+            "sector",
+            filters={
+                "parent": ["in", visible_names],
+                "parenttype": "BD Achievements",
+            },
+            parent_doctype="BD Achievements",
+        )
+        if visible_names else []
+    )
 
     return options
 
 @frappe.whitelist(allow_guest=False)
 def get_fiscal_years():
     """Get list of available fiscal years from achievements"""
-    years = frappe.db.sql("""
-        SELECT DISTINCT year
-        FROM `tabBD Achievements`
-        WHERE year IS NOT NULL AND year != ''
-        ORDER BY year DESC
-    """, as_list=True)
-
-    return [year[0] for year in years] if years else []
+    return _distinct_values("BD Achievements", "year", descending=True)
 
 @frappe.whitelist(allow_guest=False)
 def get_companies():
     """Get list of companies from achievements"""
-    companies = frappe.db.sql("""
-        SELECT DISTINCT company
-        FROM `tabBD Achievements`
-        WHERE company IS NOT NULL AND company != ''
-        ORDER BY company
-    """, as_list=True)
-
-    return [company[0] for company in companies] if companies else []
+    return _distinct_values("BD Achievements", "company")
 
 @frappe.whitelist(allow_guest=False)
 def get_clients():
     """Get list of clients from achievements"""
-    clients = frappe.db.sql("""
-        SELECT DISTINCT client
-        FROM `tabBD Achievements`
-        WHERE client IS NOT NULL AND client != ''
-        ORDER BY client
-    """, as_list=True)
+    return _distinct_values("BD Achievements", "client")
 
-    return [client[0] for client in clients] if clients else []
+
+def _distinct_values(doctype, field, descending=False, filters=None, parent_doctype=None):
+    """Return populated field values in the same order as the dashboard filters."""
+    return frappe.get_list(
+        doctype,
+        filters={**(filters or {}), field: ["!=", ""]},
+        parent_doctype=parent_doctype,
+        fields=[field],
+        distinct=True,
+        order_by=f"{field} {'desc' if descending else 'asc'}",
+        pluck=field,
+        limit_page_length=0,
+    )
 
 @frappe.whitelist(allow_guest=False)
 def get_summary_stats():
     """Get quick summary statistics"""
-    total = frappe.db.count('BD Achievements')
-
-    companies = frappe.db.sql("""
-        SELECT COUNT(DISTINCT company) as count
-        FROM `tabBD Achievements`
-        WHERE company IS NOT NULL AND company != ''
-    """, as_dict=True)
-
-    clients = frappe.db.sql("""
-        SELECT COUNT(DISTINCT client) as count
-        FROM `tabBD Achievements`
-        WHERE client IS NOT NULL AND client != ''
-    """, as_dict=True)
+    total = frappe.get_list(
+        "BD Achievements",
+        fields=["count(*) as count"],
+        limit_page_length=1,
+    )[0].count
 
     return {
         "total_achievements": total,
-        "companies": companies[0].count if companies else 0,
-        "clients": clients[0].count if clients else 0
+        "companies": len(_distinct_values("BD Achievements", "company")),
+        "clients": len(_distinct_values("BD Achievements", "client")),
     }

@@ -61,11 +61,13 @@ crm_customization.BDCCRegistrationAndQualification = class {
 							<tbody id="rq-table-body"></tbody>
 						</table>
 					</div>
+					<div class="bd-cc-report-pagination" id="rq-pagination"></div>
 				</div>
 
 			</div>
 		`);
 
+		this._pagination = new crm_customization.BDCCReportPagination(this.$panel, 'rq');
 		this.mount_controls();
 		this.wire_buttons();
 		this.run_report();
@@ -340,40 +342,42 @@ crm_customization.BDCCRegistrationAndQualification = class {
 			'</tr>';
 		$('#rq-table-head').html(head);
 
-		if (!data.length) {
-			$('#rq-table-body').html(
-				'<tr><td class="rq-empty" colspan="' + (columns.length + 1) + '">No data found. Select a Period Type and Year to load results.</td></tr>'
-			);
-			return;
-		}
+		this._pagination.set_data(data, (page_data, offset) => {
+			if (!page_data.length) {
+				$('#rq-table-body').html(
+					'<tr><td class="rq-empty" colspan="' + (columns.length + 1) + '">No data found. Select a Period Type and Year to load results.</td></tr>'
+				);
+				return;
+			}
 
-		const rows = data.map((row, index) => {
-			const highlighted = this._period_fields.some(key => row[key] === 1 || row[key] === '1' || row[key] === true);
-			const tds = columns.map(col => {
-				const fieldname = col.fieldname || col.name;
-				let value = row[fieldname];
-				if (value === null || value === undefined) value = '';
-				if (this._check_fields.indexOf(fieldname) !== -1) {
-					const on = (value === 1 || value === '1' || value === true);
-					return '<td class="rq-check"><span class="' + (on ? 'rq-check-on' : 'rq-check-off') + '">' +
-						(on ? '&#10003;' : '&#8722;') + '</span></td>';
-				}
-				if (fieldname === 'business_request' && value) {
-					return '<td><a class="rq-link" href="' + esc(value) + '" data-name="' + esc(value) + '">' + esc(value) + '</a></td>';
-				}
-				return '<td>' + esc(value) + '</td>';
+			const rows = page_data.map((row, index) => {
+				const highlighted = this._period_fields.some(key => row[key] === 1 || row[key] === '1' || row[key] === true);
+				const tds = columns.map(col => {
+					const fieldname = col.fieldname || col.name;
+					let value = row[fieldname];
+					if (value === null || value === undefined) value = '';
+					if (this._check_fields.indexOf(fieldname) !== -1) {
+						const on = (value === 1 || value === '1' || value === true);
+						return '<td class="rq-check"><span class="' + (on ? 'rq-check-on' : 'rq-check-off') + '">' +
+							(on ? '&#10003;' : '&#8722;') + '</span></td>';
+					}
+					if (fieldname === 'business_request' && value) {
+						return '<td><a class="rq-link" href="' + esc(value) + '" data-name="' + esc(value) + '">' + esc(value) + '</a></td>';
+					}
+					return '<td>' + esc(value) + '</td>';
+				}).join('');
+
+				return '<tr class="' + (highlighted ? 'rq-row-highlight' : '') + '">' +
+					'<td>' + (offset + index + 1) + '</td>' + tds + '</tr>';
 			}).join('');
 
-			return '<tr class="' + (highlighted ? 'rq-row-highlight' : '') + '">' +
-				'<td>' + (index + 1) + '</td>' + tds + '</tr>';
-		}).join('');
+			$('#rq-table-body').html(rows);
 
-		$('#rq-table-body').html(rows);
-
-		// Business Request links → open the doc
-		this.$panel.find('.rq-link').off('click').on('click', (e) => {
-			e.preventDefault();
-			frappe.set_route('Form', 'Business Request', $(e.currentTarget).data('name'));
+			// Business Request links → open the doc
+			this.$panel.find('.rq-link').off('click').on('click', (e) => {
+				e.preventDefault();
+				frappe.set_route('Form', 'Business Request', $(e.currentTarget).data('name'));
+			});
 		});
 	}
 };

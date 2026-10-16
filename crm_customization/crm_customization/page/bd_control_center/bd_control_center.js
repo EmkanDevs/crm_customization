@@ -5,6 +5,7 @@
 // Add a new include line when you build a new section.
 {% include "crm_customization/crm_customization/page/bd_control_center/bd_cc_sections/section_base_styles.js" %}
 {% include "crm_customization/crm_customization/page/bd_control_center/bd_cc_sections/section_list_pane.js" %}
+{% include "crm_customization/crm_customization/page/bd_control_center/bd_cc_sections/report_pagination.js" %}
 {% include "crm_customization/crm_customization/page/bd_control_center/bd_cc_sections/subsidiary_company.js" %}
 {% include "crm_customization/crm_customization/page/bd_control_center/bd_cc_sections/customer.js" %}
 {% include "crm_customization/crm_customization/page/bd_control_center/bd_cc_sections/business_request.js" %}

@@ -57,11 +57,13 @@ crm_customization.BDCCBusinessRequestInsights = class {
 							<tbody id="bri-table-body"></tbody>
 						</table>
 					</div>
+					<div class="bd-cc-report-pagination" id="bri-pagination"></div>
 				</div>
 
 			</div>
 		`);
 
+		this._pagination = new crm_customization.BDCCReportPagination(this.$panel, 'bri');
 		this.mount_controls();
 		this.wire_buttons();
 		this.run_report();
@@ -302,34 +304,36 @@ crm_customization.BDCCBusinessRequestInsights = class {
 			'</tr>';
 		$('#bri-table-head').html(head);
 
-		if (!data.length) {
-			$('#bri-table-body').html(
-				'<tr><td class="bri-empty" colspan="' + (columns.length + 1) + '">No data found. Set filters to load results.</td></tr>'
-			);
-			return;
-		}
+		this._pagination.set_data(data, (page_data, offset) => {
+			if (!page_data.length) {
+				$('#bri-table-body').html(
+					'<tr><td class="bri-empty" colspan="' + (columns.length + 1) + '">No data found. Set filters to load results.</td></tr>'
+				);
+				return;
+			}
 
-		const rows = data.map((row, index) => {
-			const tds = columns.map(col => {
-				const fieldname = col.fieldname || col.name;
-				let value = row[fieldname];
-				if (value === null || value === undefined) value = '';
+			const rows = page_data.map((row, index) => {
+				const tds = columns.map(col => {
+					const fieldname = col.fieldname || col.name;
+					let value = row[fieldname];
+					if (value === null || value === undefined) value = '';
 
-				if (linkColumns[fieldname] && value) {
-					return '<td><a class="bri-link" href="#" data-doctype="' + esc(linkColumns[fieldname]) + '" data-name="' + esc(value) + '">' + esc(value) + '</a></td>';
-				}
-				return '<td>' + esc(value) + '</td>';
+					if (linkColumns[fieldname] && value) {
+						return '<td><a class="bri-link" href="#" data-doctype="' + esc(linkColumns[fieldname]) + '" data-name="' + esc(value) + '">' + esc(value) + '</a></td>';
+					}
+					return '<td>' + esc(value) + '</td>';
+				}).join('');
+
+				return '<tr><td>' + (offset + index + 1) + '</td>' + tds + '</tr>';
 			}).join('');
 
-			return '<tr><td>' + (index + 1) + '</td>' + tds + '</tr>';
-		}).join('');
+			$('#bri-table-body').html(rows);
 
-		$('#bri-table-body').html(rows);
-
-		// Link cells → open the doc
-		this.$panel.find('.bri-link').off('click').on('click', (e) => {
-			e.preventDefault();
-			frappe.set_route('Form', $(e.currentTarget).data('doctype'), $(e.currentTarget).data('name'));
+			// Link cells → open the doc
+			this.$panel.find('.bri-link').off('click').on('click', (e) => {
+				e.preventDefault();
+				frappe.set_route('Form', $(e.currentTarget).data('doctype'), $(e.currentTarget).data('name'));
+			});
 		});
 	}
 };

@@ -139,7 +139,8 @@ crm_customization.AlessaManagementBDDashboard = class {
         this.dashboard_data = {};
         this.active_tab = 'priority_actions';
         this.current_page = 1;
-        this.page_length = 10;
+        this.page_length = 20;
+        this._report_request_seq = 0;
 
         this.add_css();
         this.setup_page();
@@ -848,6 +849,10 @@ crm_customization.AlessaManagementBDDashboard = class {
             .amb-btn-page:hover {
                 background: #f1f5f9;
             }
+            .amb-btn-page:disabled {
+                opacity: 0.45;
+                cursor: default;
+            }
 
             /* Table View */
             .amb-table-wrap {
@@ -1265,12 +1270,12 @@ crm_customization.AlessaManagementBDDashboard = class {
                             <button class="amb-tab-btn" data-tab="business_request_insights">Business Request Insights</button>
                         </div>
                         <div class="amb-tabs-actions">
-                            <span id="amb-records-count">115 actionable records</span>
+                            <span id="amb-records-count">0 actionable records</span>
                             <button class="amb-btn-download-csv" id="amb-download-csv">Download CSV</button>
                             <div class="amb-pagination">
-                                <button class="amb-btn-page" id="amb-page-prev">Prev</button>
-                                <span id="amb-page-info">Page 1/10</span>
-                                <button class="amb-btn-page" id="amb-page-next">Next</button>
+                                <button class="amb-btn-page" id="amb-page-prev" disabled>Prev</button>
+                                <span id="amb-page-info">Page 1/1</span>
+                                <button class="amb-btn-page" id="amb-page-next" disabled>Next</button>
                             </div>
                         </div>
                     </div>
@@ -1562,14 +1567,9 @@ crm_customization.AlessaManagementBDDashboard = class {
         records = records || [];
         this.all_priority_records = records;
 
-        var total = records.length;
-        var total_pages = Math.ceil(total / this.page_length) || 1;
-        if (this.current_page > total_pages) this.current_page = 1;
-
         // Only update count/pagination controls when this tab is active
         if (this.active_tab === 'priority_actions') {
-            $('#amb-records-count').text(total + ' actionable records');
-            $('#amb-page-info').text('Page ' + this.current_page + '/' + total_pages);
+            this.update_table_pagination(records.length, 'actionable records');
         }
 
         var start = (this.current_page - 1) * this.page_length;
@@ -1632,6 +1632,15 @@ crm_customization.AlessaManagementBDDashboard = class {
         $('#amb-priority-actions-tbody').html(tbody);
     }
 
+    update_table_pagination(total, label) {
+        var total_pages = Math.ceil(total / this.page_length) || 1;
+        this.current_page = Math.min(Math.max(1, this.current_page), total_pages);
+        $('#amb-records-count').text(total + ' ' + label);
+        $('#amb-page-info').text('Page ' + this.current_page + '/' + total_pages);
+        $('#amb-page-prev').prop('disabled', this.current_page === 1);
+        $('#amb-page-next').prop('disabled', this.current_page === total_pages);
+    }
+
     /* -------------------------------------------------------------
        Load Query Report for Tabs 2 & 3
     ------------------------------------------------------------- */
@@ -1667,12 +1676,20 @@ crm_customization.AlessaManagementBDDashboard = class {
 
     load_query_report(report_name, container_id) {
         var me = this;
+        var request_seq = ++this._report_request_seq;
+        this.active_report = null;
+        this.current_page = 1;
+        this.update_table_pagination(0, 'report records');
         $(container_id).html('<div style="padding: 20px; text-align: center; color: #64748b;">Loading report data...</div>');
 
         frappe.call({
             method: 'frappe.desk.query_report.run',
             args: { report_name: report_name, filters: me.get_report_filters(report_name) },
             callback: function(r) {
+                if (request_seq !== me._report_request_seq ||
+                    (report_name === 'Registration and Qualification' && me.active_tab !== 'registration_qualification') ||
+                    (report_name === 'Business Request Insights' && me.active_tab !== 'business_request_insights')) return;
+
                 var cols = [];
                 var rows = [];
                 if (r && r.message) {
@@ -1686,45 +1703,51 @@ crm_customization.AlessaManagementBDDashboard = class {
 
                 me.active_report = { type: report_name, rows: rows, cols: cols };
                 me.current_page = 1;
-
-                // Update tab controls to reflect this report
-                $('#amb-records-count').text(rows.length + ' report records');
-                $('#amb-page-info').text('');
-
-                var html = '<table class="amb-data-table"><thead><tr>';
-                cols.forEach(function(c) {
-                    var label = typeof c === 'object' ? (c.label || c.fieldname) : c;
-                    html += '<th>' + label + '</th>';
-                });
-                html += '</tr></thead><tbody>';
-
-                rows.forEach(function(row) {
-                    html += '<tr>';
-                    cols.forEach(function(c, ci) {
-                        var key = typeof c === 'object' ? c.fieldname : c;
-                        var fieldtype = typeof c === 'object' ? c.fieldtype : null;
-                        var options = typeof c === 'object' ? c.options : null;
-                        var val;
-                        if (Array.isArray(row)) {
-                            val = row[ci];
-                        } else {
-                            val = (row[key] !== undefined && row[key] !== null) ? row[key] : '';
-                        }
-                        var linkable = fieldtype === 'Link' && options && frappe.utils.get_form_link && key !== 'request_category';
-                        if (val !== null && val !== undefined && val !== '' && linkable) {
-                            var href = frappe.utils.get_form_link(options, String(val));
-                            html += '<td><a href="' + href + '" style="color: #2563eb; font-weight: 600; text-decoration: none;">' + val + '</a></td>';
-                        } else {
-                            html += '<td>' + (val !== null && val !== undefined ? val : '') + '</td>';
-                        }
-                    });
-                    html += '</tr>';
-                });
-
-                html += '</tbody></table>';
-                $(container_id).html(html);
+                me.render_query_report_table();
             }
         });
+    }
+
+    render_query_report_table() {
+        var report = this.active_report || { rows: [], cols: [] };
+        var rows = report.rows;
+        var cols = report.cols;
+        this.update_table_pagination(rows.length, 'report records');
+
+        var start = (this.current_page - 1) * this.page_length;
+        var page_rows = rows.slice(start, start + this.page_length);
+        var html = '<table class="amb-data-table"><thead><tr>';
+        cols.forEach(function(c) {
+            var label = typeof c === 'object' ? (c.label || c.fieldname) : c;
+            html += '<th>' + label + '</th>';
+        });
+        html += '</tr></thead><tbody>';
+
+        page_rows.forEach(function(row) {
+            html += '<tr>';
+            cols.forEach(function(c, ci) {
+                var key = typeof c === 'object' ? c.fieldname : c;
+                var fieldtype = typeof c === 'object' ? c.fieldtype : null;
+                var options = typeof c === 'object' ? c.options : null;
+                var val;
+                if (Array.isArray(row)) {
+                    val = row[ci];
+                } else {
+                    val = (row[key] !== undefined && row[key] !== null) ? row[key] : '';
+                }
+                var linkable = fieldtype === 'Link' && options && frappe.utils.get_form_link && key !== 'request_category';
+                if (val !== null && val !== undefined && val !== '' && linkable) {
+                    var href = frappe.utils.get_form_link(options, String(val));
+                    html += '<td><a href="' + href + '" style="color: #2563eb; font-weight: 600; text-decoration: none;">' + val + '</a></td>';
+                } else {
+                    html += '<td>' + (val !== null && val !== undefined ? val : '') + '</td>';
+                }
+            });
+            html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        $('#amb-tab-content-area').html(html);
     }
 
     /* -------------------------------------------------------------
@@ -1944,6 +1967,7 @@ crm_customization.AlessaManagementBDDashboard = class {
 
         // Tab Switching Logic
         $(document).on('click', '.amb-tab-btn', function() {
+            me._report_request_seq++;
             $('.amb-tab-btn').removeClass('active');
             $(this).addClass('active');
 
@@ -1992,20 +2016,22 @@ crm_customization.AlessaManagementBDDashboard = class {
         });
 
         $('#amb-page-prev').on('click', function() {
-            // Pagination only applies to Priority Actions (report tabs show all rows)
-            if (me.active_tab !== 'priority_actions') return;
             if (me.current_page > 1) {
                 me.current_page--;
-                me.render_priority_actions_table(me.all_priority_records);
+                if (me.active_tab === 'priority_actions') me.render_priority_actions_table(me.all_priority_records);
+                else me.render_query_report_table();
             }
         });
 
         $('#amb-page-next').on('click', function() {
-            if (me.active_tab !== 'priority_actions') return;
-            var max_pages = Math.ceil((me.all_priority_records || []).length / me.page_length) || 1;
+            var total = me.active_tab === 'priority_actions'
+                ? (me.all_priority_records || []).length
+                : ((me.active_report && me.active_report.rows) || []).length;
+            var max_pages = Math.ceil(total / me.page_length) || 1;
             if (me.current_page < max_pages) {
                 me.current_page++;
-                me.render_priority_actions_table(me.all_priority_records);
+                if (me.active_tab === 'priority_actions') me.render_priority_actions_table(me.all_priority_records);
+                else me.render_query_report_table();
             }
         });
 

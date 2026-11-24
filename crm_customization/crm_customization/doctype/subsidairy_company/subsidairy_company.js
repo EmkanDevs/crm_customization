@@ -18,3 +18,20 @@ frappe.ui.form.on('Subsidairy Company', {
            });
     }
 });
+
+frappe.ui.form.on('Subsidairy Company Task Register', {
+    bd_task_reference: function(frm, cdt, cdn) {
+        let row = locals[cdt][cdn];
+        if (!row.bd_task_reference) return;
+
+        // Use the Business Request's Request Date, or its creation date if that is empty
+        frappe.db.get_value('Business Request', row.bd_task_reference, ['request_date', 'creation'])
+            .then(r => {
+                let br = r.message || {};
+                let date = br.request_date || (br.creation ? br.creation.split(' ')[0] : null);
+                if (date) {
+                    frappe.model.set_value(cdt, cdn, 'request_raised_date', date);
+                }
+            });
+    }
+});

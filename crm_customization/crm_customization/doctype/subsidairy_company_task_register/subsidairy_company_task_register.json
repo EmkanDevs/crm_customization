@@ -14,6 +14,7 @@
   "gbs",
   "column_break_yiyv",
   "status",
+  "reason",
   "acl_msa",
   "pq_project",
   "project_name",
@@ -22,7 +23,18 @@
   "column_break_jjdl",
   "stage",
   "category",
-  "expires_on"
+  "expires_on",
+  "section_break_request",
+  "bd_task_reference",
+  "request_raised_date",
+  "date_received",
+  "column_break_request",
+  "expected_completion_date",
+  "submission_date",
+  "section_break_follow_up",
+  "type_of_follow_up",
+  "column_break_follow_up",
+  "feedback"
  ],
  "fields": [
   {
@@ -122,13 +134,74 @@
    "fieldtype": "Select",
    "label": "Registration",
    "options": "\nIn Process\nPending\nPending Approval\nProjects Only\nYes"
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Data",
+   "label": "Reason"
+  },
+  {
+   "fieldname": "section_break_request",
+   "fieldtype": "Section Break",
+   "label": "Request Details"
+  },
+  {
+   "fieldname": "bd_task_reference",
+   "fieldtype": "Link",
+   "label": "BD Task Reference",
+   "options": "Business Request"
+  },
+  {
+   "fieldname": "request_raised_date",
+   "fieldtype": "Date",
+   "label": "Request Raised Date",
+   "description": "Fetched from the BD Task Reference. Enter manually if no reference is selected."
+  },
+  {
+   "fieldname": "date_received",
+   "fieldtype": "Date",
+   "label": "Date Received"
+  },
+  {
+   "fieldname": "column_break_request",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "expected_completion_date",
+   "fieldtype": "Date",
+   "label": "Expected Completion Date"
+  },
+  {
+   "fieldname": "submission_date",
+   "fieldtype": "Date",
+   "label": "Submission Date"
+  },
+  {
+   "fieldname": "section_break_follow_up",
+   "fieldtype": "Section Break",
+   "label": "Follow-up"
+  },
+  {
+   "fieldname": "type_of_follow_up",
+   "fieldtype": "Select",
+   "label": "Type of Follow-up",
+   "options": "\nEmail\nPhone\nMeeting\nFace to Face\nLinkedIn\nWhatsApp\nOther"
+  },
+  {
+   "fieldname": "column_break_follow_up",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "feedback",
+   "fieldtype": "Data",
+   "label": "Feedback"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2026-06-29 10:01:09.421982",
+ "modified": "2026-11-24 12:00:00.000000",
  "modified_by": "Administrator",
  "module": "Crm Customization",
  "name": "Subsidairy Company Task Register",

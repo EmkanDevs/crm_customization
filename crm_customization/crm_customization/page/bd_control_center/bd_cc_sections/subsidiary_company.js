@@ -592,6 +592,7 @@ this._saved_doc = '';
 			{ fieldname: 'vendor_no', label: __('Vendor No'), fieldtype: 'Data' },
 			{ fieldtype: 'Section Break' },
 			{ fieldname: 'status', label: __('Status'), fieldtype: 'Select', options: sel(['Not Started','Not Qualified','Pending Approval','Waiting for the Request Approval','Pending Submission','Pending Re-Submission','In Process','On Hold','Qualified','Completed','Rejected','Under Qualification','Cancelled']) },
+			{ fieldname: 'reason', label: __('Reason'), fieldtype: 'Data' },
 			{ fieldname: 'expires_on', label: __('Expires On'), fieldtype: 'Date' },
 			{ fieldtype: 'Column Break' },
 			{ fieldname: 'stage', label: __('Stage'), fieldtype: 'Select', options: sel(['Registration','Prequalification','PQ Project','RFQ Invitation']) },
@@ -607,6 +608,17 @@ this._saved_doc = '';
 			{ fieldname: 'registration_status', label: __('Registration Status'), fieldtype: 'Select', options: sel(['Pending','In Process','Pending Approval','Registered']) },
 			{ fieldtype: 'Column Break' },
 			{ fieldname: 'reg', label: __('Registration'), fieldtype: 'Select', options: sel(['In Process','Pending','Pending Approval','Projects Only','Yes']) },
+			{ fieldtype: 'Section Break', label: __('Request Details') },
+			{ fieldname: 'bd_task_reference', label: __('BD Task Reference'), fieldtype: 'Link', options: 'Business Request' },
+			{ fieldname: 'request_raised_date', label: __('Request Raised Date'), fieldtype: 'Date', description: __('Fetched from the BD Task Reference. Enter manually if no reference is selected.') },
+			{ fieldname: 'date_received', label: __('Date Received'), fieldtype: 'Date' },
+			{ fieldtype: 'Column Break' },
+			{ fieldname: 'expected_completion_date', label: __('Expected Completion Date'), fieldtype: 'Date' },
+			{ fieldname: 'submission_date', label: __('Submission Date'), fieldtype: 'Date' },
+			{ fieldtype: 'Section Break', label: __('Follow-up') },
+			{ fieldname: 'type_of_follow_up', label: __('Type of Follow-up'), fieldtype: 'Select', options: sel(['Email','Phone','Meeting','Face to Face','LinkedIn','WhatsApp','Other']) },
+			{ fieldtype: 'Column Break' },
+			{ fieldname: 'feedback', label: __('Feedback'), fieldtype: 'Data' },
 		];
 	}
 
@@ -635,6 +647,21 @@ this._saved_doc = '';
 				d.hide();
 			},
 		});
+		// Fetch Request Raised Date from the selected Business Request
+		// (its Request Date, else its creation date). Skip when the stored
+		// reference is just being loaded and already has a date.
+		d.fields_dict.bd_task_reference.df.onchange = () => {
+			const ref = d.get_value('bd_task_reference');
+			if (!ref) return;
+			if (ref === row.bd_task_reference && d.get_value('request_raised_date')) return;
+			frappe.db.get_value('Business Request', ref, ['request_date', 'creation']).then((r) => {
+				const br = (r && r.message) || {};
+				const date = br.request_date || (br.creation ? br.creation.split(' ')[0] : null);
+				if (date && d.get_value('bd_task_reference') === ref) {
+					d.set_value('request_raised_date', date);
+				}
+			});
+		};
 		d.set_values(row);
 		d.show();
 	}
@@ -656,6 +683,14 @@ this._saved_doc = '';
 			{ label: 'Vendor No',         field: 'vendor_no' },
 			{ label: 'Category',          field: 'category' },
 			{ label: 'Expires On',        field: 'expires_on' },
+			{ label: 'Reason',            field: 'reason' },
+			{ label: 'BD Task Reference', field: 'bd_task_reference' },
+			{ label: 'Request Raised Date', field: 'request_raised_date' },
+			{ label: 'Date Received',     field: 'date_received' },
+			{ label: 'Expected Completion Date', field: 'expected_completion_date' },
+			{ label: 'Submission Date',   field: 'submission_date' },
+			{ label: 'Type of Follow-up', field: 'type_of_follow_up' },
+			{ label: 'Feedback',          field: 'feedback' },
 		];
 	}
 
